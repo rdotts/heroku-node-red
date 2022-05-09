@@ -16,67 +16,80 @@
 
 var path = require("path");
 var when = require("when");
-var pgutil = require('./pgutil');
+var pgutil = require("./pgutil");
 
 process.env.NODE_RED_HOME = __dirname;
 
-var settings = module.exports = {
-    uiPort: process.env.PORT || 1880,
-    mqttReconnectTime: 15000,
-    serialReconnectTime: 15000,
-    debugMaxLength: 10000000,
+var settings = (module.exports = {
+  uiPort: process.env.PORT || 1880,
+  mqttReconnectTime: 15000,
+  serialReconnectTime: 15000,
+  debugMaxLength: 10000000,
 
-    // Blacklist the non-bluemix friendly nodes
-    nodesExcludes:[ '66-mongodb.js','75-exec.js','35-arduino.js','36-rpi-gpio.js','25-serial.js','28-tail.js','50-file.js','31-tcpin.js','32-udp.js','23-watch.js' ],
+  // Blacklist the non-bluemix friendly nodes
+  nodesExcludes: [
+    "66-mongodb.js",
+    "75-exec.js",
+    "35-arduino.js",
+    "36-rpi-gpio.js",
+    "25-serial.js",
+    "28-tail.js",
+    "50-file.js",
+    "31-tcpin.js",
+    "32-udp.js",
+    "23-watch.js",
+  ],
 
-    // Enable module reinstalls on start-up; this ensures modules installed
-    // post-deploy are restored after a restage
-    autoInstallModules: true,
+  // Enable module reinstalls on start-up; this ensures modules installed
+  // post-deploy are restored after a restage
+  autoInstallModules: true,
 
-    // Move the admin UI
-    httpAdminRoot: '/red',
+  // Move the admin UI
+  httpAdminRoot: "/red",
 
-    // You can protect the user interface with a userid and password by using the following property
-    // the password must be an md5 hash  eg.. 5f4dcc3b5aa765d61d8327deb882cf99 ('password')
-    //httpAdminAuth: {user:"user",pass:"5f4dcc3b5aa765d61d8327deb882cf99"},
+  // You can protect the user interface with a userid and password by using the following property
+  // the password must be an md5 hash  eg.. 5f4dcc3b5aa765d61d8327deb882cf99 ('password')
+  //httpAdminAuth: {user:"user",pass:"5f4dcc3b5aa765d61d8327deb882cf99"},
 
-    // Serve up the welcome page
-    httpStatic: path.join(__dirname,"public"),
+  // Serve up the welcome page
+  httpStatic: path.join(__dirname, "public"),
 
-    functionGlobalContext: { },
+  functionGlobalContext: {},
 
-    storageModule: require("./pgstorage"),
+  storageModule: require("./pgstorage"),
 
-    httpNodeCors: {
-        origin: "*",
-        methods: "GET,PUT,POST,DELETE"
-    },
-    
-    // Disbled Credential Secret
-    credentialSecret: false
-}
+  httpNodeCors: {
+    origin: "*",
+    methods: "GET,PUT,POST,DELETE",
+  },
+
+  // Disbled Credential Secret
+  credentialSecret: false,
+});
 
 if (process.env.NODE_RED_USERNAME && process.env.NODE_RED_PASSWORD) {
-    settings.adminAuth = {
-        type: "credentials",
-        users: function(username) {
-            if (process.env.NODE_RED_USERNAME == username) {
-                return when.resolve({username:username,permissions:"*"});
-            } else {
-                return when.resolve(null);
-            }
-        },
-        authenticate: function(username, password) {
-            if (process.env.NODE_RED_USERNAME == username &&
-                process.env.NODE_RED_PASSWORD == password) {
-                return when.resolve({username:username,permissions:"*"});
-            } else {
-                return when.resolve(null);
-            }
-        }
-    }
+  settings.adminAuth = {
+    type: "credentials",
+    users: function (username) {
+      if (process.env.NODE_RED_USERNAME == username) {
+        return when.resolve({ username: username, permissions: "*" });
+      } else {
+        return when.resolve(null);
+      }
+    },
+    authenticate: function (username, password) {
+      if (
+        process.env.NODE_RED_USERNAME == username &&
+        process.env.NODE_RED_PASSWORD == password
+      ) {
+        return when.resolve({ username: username, permissions: "*" });
+      } else {
+        return when.resolve(null);
+      }
+    },
+  };
 }
 
-settings.pgAppname = 'nodered';
+settings.pgAppname = "dotts-node-red";
 pgutil.initPG();
 pgutil.createTable();
